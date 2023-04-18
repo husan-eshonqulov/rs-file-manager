@@ -1,6 +1,6 @@
 const readline = require('readline');
 
-const { printMessage, getUsername } = require('./lib/helper');
+const { checkRunCom, printMessage, getUsername } = require('./lib/helper');
 const { welcome, goodBye, workingDir } = require('./lib/message');
 
 const rl = readline.createInterface({
@@ -8,19 +8,25 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
+if (!checkRunCom(process)) {
+    console.log(
+        `Run command should be like this: 'npm run start -- --username=USERNAME'`
+    );
+    process.exit(1);
+}
+
 const start = () => {
     const username = getUsername(process);
     printMessage(welcome(username));
     printMessage(workingDir(__dirname));
 
     rl.on('line', (input) => {
-        if (input.toLowerCase() === '.exit') {
-            rl.close();
-        }
+        if (input.toLowerCase() === '.exit') return rl.close();
+        printMessage(workingDir(__dirname));
     });
 
     rl.on('close', () => {
-        console.log('\n closed');
+        printMessage(goodBye(username));
     });
 };
 
