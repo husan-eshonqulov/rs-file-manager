@@ -1,22 +1,20 @@
 const path = require('path');
+const fs = require('fs/promises');
+const { statSync } = require('fs');
+const { printMessage } = require('./lib/helper');
 
 const operations = ['up', 'cd', 'ls', 'cat', 'add', 'rn', 'cp', 'mv', 'rm'];
 
-const parseCommand = (command) => {
-    const keys = command.split(' ');
-    const lowerOpr = keys[0].toLowerCase();
-    const operation = operations.includes(lowerOpr) ? lowerOpr : '';
-    const params = keys.slice(1);
-    return { operation, params };
-};
-
-const operate = (operation, params) => {
+const operate = async (operation, params) => {
     switch (operation) {
         case 'up':
             up();
             break;
         case 'cd':
             cd(params[0]);
+            break;
+        case 'ls':
+            await ls();
             break;
     }
 };
@@ -29,4 +27,27 @@ const cd = (pathToDir) => {
     process.chdir(path.resolve(process.cwd(), pathToDir));
 };
 
-module.exports = { parseCommand, operate };
+const ls = async () => {
+    const cwd = process.cwd();
+    try {
+        const dirBox = [];
+        const fileBox = [];
+        const files = await fs.readdir(cwd);
+        const filePaths = files.map((file) => path.join(process.cwd(), file));
+        filePaths.forEach((path, index) => {
+            const stats = statSync(path);
+            if (stats.isFile()) {
+                fileBox.push(files[index]);
+            } else if (stats.isDirectory()) {
+                dirBox.push(files[index]);
+            }
+        });
+        const res = [...dirBox.sort(), ...fileBox.sort()];
+        console.log(dirBox);
+        console.log(fileBox);
+    } catch (err) {
+        throw err;
+    }
+};
+
+module.exports = { operations, operate };

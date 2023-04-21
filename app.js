@@ -1,12 +1,13 @@
 const readline = require('readline');
 const os = require('os');
 
-const { parseCommand, operate } = require('./operations');
+const { operate } = require('./operations');
 const {
     checkRunCommand,
     printMessage,
     getUsername,
     eraseWhiteSpace,
+    parseCommand,
 } = require('./lib/helper');
 const {
     welcome,
@@ -37,7 +38,7 @@ const start = () => {
     printMessage(welcome(username));
     printMessage(workingDir(process.cwd()));
 
-    rl.on('line', (command) => {
+    rl.on('line', async (command) => {
         command = eraseWhiteSpace(command);
         if (command.toLowerCase() === '.exit') return rl.close();
 
@@ -45,7 +46,7 @@ const start = () => {
         if (!operation) return printMessage(invalidInput());
 
         try {
-            operate(operation, params);
+            await operate(operation, params);
         } catch (err) {
             return printMessage(operationFaild());
         }
