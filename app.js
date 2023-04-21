@@ -1,6 +1,7 @@
 const readline = require('readline');
 const os = require('os');
 
+const { parseCommand, operate } = require('./operations');
 const { checkRunCommand, printMessage, getUsername } = require('./lib/helper');
 const {
     welcome,
@@ -9,7 +10,6 @@ const {
     invalidInput,
     operationFaild,
 } = require('./lib/message');
-const { parseCommand, operate } = require('./operations');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -22,7 +22,7 @@ if (!checkRunCommand(process)) {
     console.log(
         `Run command should be like this: 'npm run start -- --username=USERNAME'`
     );
-    process.exit(1);
+    process.exit();
 }
 
 process.chdir(homeDir);
@@ -32,11 +32,10 @@ const start = () => {
     printMessage(welcome(username));
     printMessage(workingDir(process.cwd()));
 
-    rl.on('line', (input) => {
-        input = input.trim();
-        if (input.toLowerCase() === '.exit') return rl.close();
+    rl.on('line', (command) => {
+        if (command.toLowerCase() === '.exit') return rl.close();
 
-        const { operation, params } = parseCommand(input);
+        const { operation, params } = parseCommand(command);
         if (!operation) return printMessage(invalidInput());
 
         try {
@@ -49,7 +48,7 @@ const start = () => {
     });
 
     rl.on('close', () => {
-        printMessage(goodBye(username));
+        return printMessage(goodBye(username));
     });
 };
 

@@ -11,8 +11,14 @@ const parseCommand = (command) => {
 };
 
 const operate = (operation, params) => {
-    if (operation === 'up' && params.length === 0) up();
-    if (operation === 'cd' && params.length === 1) cd(params[0]);
+    switch (operation) {
+        case 'up':
+            up();
+            break;
+        case 'cd':
+            cd(params[0]);
+            break;
+    }
 };
 
 const up = () => {
