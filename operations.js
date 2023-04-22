@@ -30,8 +30,8 @@ const cd = (pathToDir) => {
 const ls = async () => {
     const cwd = process.cwd();
     try {
-        const dirBox = [];
-        const fileBox = [];
+        let dirBox = [];
+        let fileBox = [];
         const files = await fs.readdir(cwd);
         const filePaths = files.map((file) => path.join(process.cwd(), file));
         filePaths.forEach((path, index) => {
@@ -42,9 +42,12 @@ const ls = async () => {
                 dirBox.push(files[index]);
             }
         });
-        const res = [...dirBox.sort(), ...fileBox.sort()];
-        console.log(dirBox);
-        console.log(fileBox);
+        dirBox.sort();
+        fileBox.sort();
+        dirBox = dirBox.map((dir) => ({ name: dir, type: 'directory' }));
+        fileBox = fileBox.map((file) => ({ name: file, type: 'file' }));
+        const table = [...dirBox, ...fileBox];
+        console.table(table);
     } catch (err) {
         throw err;
     }
