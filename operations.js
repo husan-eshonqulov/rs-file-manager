@@ -22,6 +22,9 @@ const operate = async (operation, params) => {
         case 'add':
             add(params[0]);
             break;
+        case 'rn':
+            await rn(params[0], params[1]);
+            break;
         default:
             throw new Error('Operation failed');
     }
@@ -71,6 +74,11 @@ const cat = (pathToFile) => {
 const add = (fileName) => {
     const filePath = path.join(process.cwd(), fileName);
     fs.writeFile(filePath, '');
+};
+
+const rn = async (filePath, newName) => {
+    const newFilePath = path.join(path.dirname(filePath), newName);
+    await fs.rename(filePath, newFilePath);
 };
 
 module.exports = { operations, operate };
