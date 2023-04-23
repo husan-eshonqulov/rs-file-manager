@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs/promises');
-const { statSync } = require('fs');
+const { statSync, createReadStream } = require('fs');
 const { printMessage } = require('./lib/helper');
 
 const operations = ['up', 'cd', 'ls', 'cat', 'add', 'rn', 'cp', 'mv', 'rm'];
@@ -15,6 +15,9 @@ const operate = async (operation, params) => {
             break;
         case 'ls':
             await ls();
+            break;
+        case 'cat':
+            await cat(params[0]);
             break;
     }
 };
@@ -51,6 +54,13 @@ const ls = async () => {
     } catch (err) {
         throw err;
     }
+};
+
+const cat = async (pathToFile) => {
+    const readStream = createReadStream(pathToFile, { encoding: 'utf8' });
+    readStream.on('data', (chunk) => {
+        printMessage(chunk);
+    });
 };
 
 module.exports = { operations, operate };
