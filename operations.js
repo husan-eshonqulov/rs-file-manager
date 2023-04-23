@@ -31,6 +31,9 @@ const operate = async (operation, params) => {
         case 'mv':
             mv(params[0], params[1]);
             break;
+        case 'rm':
+            rm(params[0]);
+            break;
         default:
             throw new Error('Operation failed');
     }
@@ -109,6 +112,10 @@ const mv = (filePath, pathDir) => {
     readStream.on('end', () => {
         fs.unlink(filePath);
     });
+};
+
+const rm = (filePath) => {
+    fs.unlink(filePath);
 };
 
 module.exports = { operations, operate };
