@@ -17,8 +17,13 @@ const operate = async (operation, params) => {
             await ls();
             break;
         case 'cat':
-            await cat(params[0]);
+            cat(params[0]);
             break;
+        case 'add':
+            add(params[0]);
+            break;
+        default:
+            throw new Error('Operation failed');
     }
 };
 
@@ -56,11 +61,16 @@ const ls = async () => {
     }
 };
 
-const cat = async (pathToFile) => {
+const cat = (pathToFile) => {
     const readStream = createReadStream(pathToFile, { encoding: 'utf8' });
     readStream.on('data', (chunk) => {
         printMessage(chunk);
     });
+};
+
+const add = (fileName) => {
+    const filePath = path.join(process.cwd(), fileName);
+    fs.writeFile(filePath, '');
 };
 
 module.exports = { operations, operate };
