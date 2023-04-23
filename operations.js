@@ -26,7 +26,10 @@ const operate = async (operation, params) => {
             await rn(params[0], params[1]);
             break;
         case 'cp':
-            await cp(params[0], params[1]);
+            cp(params[0], params[1]);
+            break;
+        case 'mv':
+            mv(params[0], params[1]);
             break;
         default:
             throw new Error('Operation failed');
@@ -84,13 +87,27 @@ const rn = async (filePath, newName) => {
     await fs.rename(filePath, newFilePath);
 };
 
-const cp = async (filePath, pathDir) => {
+const cp = (filePath, pathDir) => {
     const fileName = path.basename(filePath);
     const readStream = createReadStream(filePath);
     const writeStream = createWriteStream(path.join(pathDir, fileName));
 
     readStream.on('data', (chunk) => {
         writeStream.write(chunk);
+    });
+};
+
+const mv = (filePath, pathDir) => {
+    const fileName = path.basename(filePath);
+    const readStream = createReadStream(filePath);
+    const writeStream = createWriteStream(path.join(pathDir, fileName));
+
+    readStream.on('data', (chunk) => {
+        writeStream.write(chunk);
+    });
+
+    readStream.on('end', () => {
+        fs.unlink(filePath);
     });
 };
 
