@@ -1,9 +1,24 @@
 const path = require('path');
 const fs = require('fs/promises');
+const { createHash } = require('crypto');
 const { statSync, createReadStream, createWriteStream } = require('fs');
+
 const { printMessage } = require('./lib/helper');
 
-const operations = ['up', 'cd', 'ls', 'cat', 'add', 'rn', 'cp', 'mv', 'rm'];
+const operations = [
+    'up',
+    'cd',
+    'ls',
+    'cat',
+    'add',
+    'rn',
+    'cp',
+    'mv',
+    'rm',
+    'hash',
+    'compress',
+    'decompress',
+];
 
 const operate = async (operation, params) => {
     switch (operation) {
@@ -33,6 +48,9 @@ const operate = async (operation, params) => {
             break;
         case 'rm':
             rm(params[0]);
+            break;
+        case 'hash':
+            hash(params[0]);
             break;
         default:
             throw new Error('Operation failed');
@@ -116,6 +134,18 @@ const mv = (filePath, pathDir) => {
 
 const rm = (filePath) => {
     fs.unlink(filePath);
+};
+
+const hash = (filePath) => {
+    const resPath = path.resolve(process.cwd(), filePath);
+    const readStream = createReadStream(resPath);
+    const hash = createHash('sha256');
+    readStream.on('data', (chunk) => {
+        hash.update(chunk);
+    });
+    readStream.on('end', () => {
+        console.log(hash.digest('hex'));
+    });
 };
 
 module.exports = { operations, operate };
