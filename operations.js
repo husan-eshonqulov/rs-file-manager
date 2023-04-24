@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const { createHash } = require('crypto');
+const { createBrotliCompress, createBrotliDecompress } = require('zlib');
 const { statSync, createReadStream, createWriteStream } = require('fs');
 
 const { printMessage } = require('./lib/helper');
@@ -51,6 +52,12 @@ const operate = async (operation, params) => {
             break;
         case 'hash':
             hash(params[0]);
+            break;
+        case 'compress':
+            compress(params[0], params[1]);
+            break;
+        case 'decompress':
+            decompress(params[0], params[1]);
             break;
         default:
             throw new Error('Operation failed');
@@ -145,6 +152,26 @@ const hash = (filePath) => {
     });
     readStream.on('end', () => {
         console.log(hash.digest('hex'));
+    });
+};
+
+const compress = (filePath, destPath) => {
+    const readStream = createReadStream(filePath);
+    const writeStream = createWriteStream(destPath);
+    const brotli = createBrotliCompress();
+    const stream = readStream.pipe(brotli).pipe(writeStream);
+    stream.on('finish', () => {
+        printMessage('Done compressiong');
+    });
+};
+
+const decompress = (filePath, destPath) => {
+    const readStream = createReadStream(filePath);
+    const writeStream = createWriteStream(destPath);
+    const brotli = createBrotliDecompress();
+    const stream = readStream.pipe(brotli).pipe(writeStream);
+    stream.on('finish', () => {
+        printMessage('Done decompressiong');
     });
 };
 
