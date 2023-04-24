@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs/promises');
+const { EOL, cpus, homedir, userInfo, arch } = require('os');
 const { createHash } = require('crypto');
 const { createBrotliCompress, createBrotliDecompress } = require('zlib');
 const { statSync, createReadStream, createWriteStream } = require('fs');
@@ -16,6 +17,7 @@ const operations = [
     'cp',
     'mv',
     'rm',
+    'os',
     'hash',
     'compress',
     'decompress',
@@ -49,6 +51,9 @@ const operate = async (operation, params) => {
             break;
         case 'rm':
             rm(params[0]);
+            break;
+        case 'os':
+            os(params[0]);
             break;
         case 'hash':
             hash(params[0]);
@@ -173,6 +178,52 @@ const decompress = (filePath, destPath) => {
     stream.on('finish', () => {
         printMessage('Done decompressiong');
     });
+};
+
+const os = (param) => {
+    if (!param.startsWith('--')) throw new Error('Operation failed');
+    param = param.toLowerCase();
+    switch (param) {
+        case '--eol':
+            osEol();
+            break;
+        case '--cpus':
+            osCpus();
+            break;
+        case '--homedir':
+            osHomedir();
+            break;
+        case '--username':
+            osUsername();
+            break;
+        case '--architecture':
+            osArchitecture();
+            break;
+        default:
+            throw new Error('Operation failed');
+    }
+};
+
+const osEol = () => {
+    printMessage(JSON.stringify(EOL));
+};
+
+const osCpus = () => {
+    cpus().map(({ model, speed }, index) => {
+        printMessage(`CPU ${index}: ${model}, @ ${speed / 1000} GHz`);
+    });
+};
+
+const osHomedir = () => {
+    printMessage(homedir());
+};
+
+const osUsername = () => {
+    printMessage(userInfo().username);
+};
+
+const osArchitecture = () => {
+    printMessage(arch());
 };
 
 module.exports = { operations, operate };
